@@ -7,7 +7,7 @@ namespace detail {
 const HIPHooksInterface& getHIPHooks() {
   auto create_impl = [] {
 #if !defined C10_MOBILE
-    auto hooks = HIPHooksRegistry()->Create("HIPHooks", HIPHooksArgs{});
+    auto hooks = HIPHooksRegistry()->Create("HIPHooks");
     if (hooks) {
       return hooks;
     }
@@ -19,6 +19,6 @@ const HIPHooksInterface& getHIPHooks() {
 }
 } // namespace detail
 
-C10_DEFINE_REGISTRY(HIPHooksRegistry, HIPHooksInterface, HIPHooksArgs)
+C10_DEFINE_REGISTRY(HIPHooksRegistry, HIPHooksInterface)
 
 } // namespace at

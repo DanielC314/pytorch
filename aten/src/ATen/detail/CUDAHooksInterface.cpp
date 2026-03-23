@@ -22,7 +22,7 @@ namespace detail {
 const CUDAHooksInterface& getCUDAHooks() {
   auto create_impl = [] {
 #if !defined C10_MOBILE
-    auto hooks = CUDAHooksRegistry()->Create("CUDAHooks", CUDAHooksArgs{});
+    auto hooks = CUDAHooksRegistry()->Create("CUDAHooks");
     if (hooks) {
       return hooks;
     }
@@ -41,6 +41,6 @@ const CUDAHooksInterface& getCUDAHooks() {
 }
 } // namespace detail
 
-C10_DEFINE_REGISTRY(CUDAHooksRegistry, CUDAHooksInterface, CUDAHooksArgs)
+C10_DEFINE_REGISTRY(CUDAHooksRegistry, CUDAHooksInterface)
 
 } // namespace at

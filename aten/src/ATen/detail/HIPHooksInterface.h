@@ -52,11 +52,7 @@ struct TORCH_API HIPHooksInterface : AcceleratorHooksInterface {
   }
 };
 
-// NB: dummy argument to suppress "ISO C++11 requires at least one argument
-// for the "..." in a variadic macro"
-struct TORCH_API HIPHooksArgs {};
-
-TORCH_DECLARE_REGISTRY(HIPHooksRegistry, HIPHooksInterface, HIPHooksArgs);
+TORCH_DECLARE_REGISTRY(HIPHooksRegistry, HIPHooksInterface);
 #define REGISTER_HIP_HOOKS(clsname) \
   C10_REGISTER_CLASS(HIPHooksRegistry, clsname, clsname)
 
