@@ -3126,6 +3126,8 @@ class Scheduler:
         self.node_to_stream: dict[BaseSchedulerNode, int] = {}
         self.buff_to_stream: dict[str, int] = {}
         self._multi_stream_nodes: bool = False
+        # Maps stream_idx → user_object_index for retrieving user stream objects
+        self.stream_idx_to_user_obj_idx: dict[int, int] = {}
         self._populate_stream_assignments()
 
         self.nodes = self.fuse_nodes(self.nodes)
@@ -3286,7 +3288,7 @@ class Scheduler:
 
         # Map user_object_index to stream index (1-indexed for side streams)
         user_obj_to_stream_idx: dict[int, int] = {}
-        next_stream_idx = 1  # 0 is reserved for default stream
+        stream_idx_counter = itertools.count(1)  # 0 is reserved for default stream
 
         for node in self.nodes:
             stream_idx = DEFAULT_STREAM_IDX
@@ -3302,8 +3304,11 @@ class Scheduler:
                     if "stream" in custom_meta:
                         user_obj_idx = custom_meta["stream"]
                         if user_obj_idx not in user_obj_to_stream_idx:
-                            user_obj_to_stream_idx[user_obj_idx] = next_stream_idx
-                            next_stream_idx += 1
+                            new_stream_idx = next(stream_idx_counter)
+                            user_obj_to_stream_idx[user_obj_idx] = new_stream_idx
+                            self.stream_idx_to_user_obj_idx[new_stream_idx] = (
+                                user_obj_idx
+                            )
                         stream_idx = user_obj_to_stream_idx[user_obj_idx]
                         # Use the first stream found
                         break
@@ -7472,7 +7477,9 @@ class Scheduler:
                                 max(unique_streams) + 1 if unique_streams else 1
                             )
                         V.graph.wrapper_code.codegen_device_guard_enter(
-                            device.index, num_streams
+                            device.index,
+                            num_streams,
+                            self.stream_idx_to_user_obj_idx,
                         )
 
                 # Handle stream context switching for multi-stream scheduling
